@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hingem — Leader to the Future</title>
+  <style>
+    /* Minimal reset */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:#fff;color:#0b0b0b}
+
+    /* Loading / front page */
+    .front{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#ffffff;z-index:9999}
+    .drops{position:absolute;inset:0;overflow:hidden}
+    .drop{position:absolute;top:-20px;width:6px;height:20px;border-radius:50%;opacity:.25;animation:fall 1.6s linear infinite}
+    @keyframes fall{to{transform:translateY(120vh);opacity:1}}
+    .sea{position:absolute;left:0;right:0;bottom:-10%;height:35%;background:linear-gradient(180deg,#e6f2ff 0,#cde7ff 60%,#b6ddff 100%);transform:translateY(60%);transition:transform .9s cubic-bezier(.2,.9,.2,1)}
+    .sea.show{transform:translateY(0)}
+
+    .diamond-holder{width:170px;height:170px;display:flex;align-items:center;justify-content:center;transform:translateY(40px);opacity:0;transition:all .9s ease}
+    .diamond{width:86px;height:86px;background:#000;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);position:relative;box-shadow:0 10px 40px rgba(0,0,0,.35);}
+    .sparkle{position:absolute;pointer-events:none}
+    .shine{animation:shine 0.9s ease 3}
+    @keyframes shine{0%{filter:brightness(1)}50%{filter:brightness(2)}100%{filter:brightness(1)}}
+
+    .home{display:none;min-height:100vh;padding:28px}
+    .top{display:flex;justify-content:space-between;align-items:center}
+    .logo{display:flex;gap:12px;align-items:center}
+    .logo .diamond-mini{width:30px;height:30px;background:#000;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);position:relative}
+    .tag{font-weight:600}
+    .ticker{background:#0b0b0b;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px}
+
+    .center{display:flex;flex-direction:column;align-items:center;margin-top:48px}
+    .voice-btn{width:128px;height:128px;border-radius:999px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.12);font-size:16px;border:6px solid rgba(11,11,11,.06);cursor:pointer}
+    .pulse{position:absolute;width:140px;height:140px;border-radius:50%;opacity:.06}
+
+    .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px;margin-top:32px}
+    .tile{padding:16px;border-radius:14px;background:linear-gradient(180deg,rgba(11,11,11,.03),rgba(11,11,11,.01));text-align:center}
+
+    .bottom-nav{position:fixed;left:20px;right:20px;bottom:20px;background:rgba(255,255,255,.95);padding:10px;border-radius:16px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 6px 24px rgba(11,11,11,.06)}
+
+    /* simple responsive tweaks */
+    @media(min-width:900px){.home{padding:48px 96px}}
+  </style>
+</head>
+<body>
+
+  <!-- Front / loading page -->
+  <div class="front" id="front">
+    <div class="drops" id="drops"></div>
+    <div class="sea" id="sea"></div>
+    <div class="diamond-holder" id="diamondHolder">
+      <div class="diamond shine" id="diamond"></div>
+    </div>
+  </div>
+
+  <!-- Main homepage -->
+  <main class="home" id="home">
+    <div class="top">
+      <div class="logo">
+        <div class="diamond-mini"></div>
+        <div>
+          <div style="font-weight:700">Hingem</div>
+          <div class="tag" style="font-size:12px;color:#444">You can say I am the leader to the future 😎✨️</div>
+        </div>
+      </div>
+      <div class="ticker" id="newsTicker">Loading latest...</div>
+    </div>
+
+    <section class="center">
+      <div style="position:relative;margin-top:18px">
+        <div class="pulse"></div>
+        <button class="voice-btn" id="voiceBtn">Talk to Hingem</button>
+      </div>
+
+      <div class="tiles" style="width:100%;max-width:920px">
+        <div class="tile">🌍 World Info</div>
+        <div class="tile">📰 News</div>
+        <div class="tile">⚽ Sports Predictions</div>
+        <div class="tile">🎵 Music & Trends</div>
+        <div class="tile">🗺 Maps & ETA</div>
+        <div class="tile">🧠 Advice</div>
+        <div class="tile">📓 Diary Mode</div>
+        <div class="tile">⚙️ Settings</div>
+      </div>
+    </section>
+
+    <div class="bottom-nav">
+      <div>Home</div>
+      <div>Assistant</div>
+      <div>Profile</div>
+      <div>More</div>
+    </div>
+  </main>
+
+  <script>
+    /* small boot animation + drop generator */
+    const front = document.getElementById('front');
+    const sea = document.getElementById('sea');
+    const diamondHolder = document.getElementById('diamondHolder');
+    const drops = document.getElementById('drops');
+
+    // create drops
+    for(let i=0;i<10;i++){const d=document.createElement('div');d.className='drop';d.style.left=(Math.random()*100|0)+'%';d.style.animationDelay=(Math.random()*1.4)+'s';d.style.height=(8+Math.random()*34|0)+'px';drops.appendChild(d)}
+
+    // show sea then diamond shine then load home
+    setTimeout(()=>{sea.classList.add('show')},600);
+    setTimeout(()=>{diamondHolder.style.opacity='1';diamondHolder.style.transform='translateY(0)';},1200);
+    setTimeout(()=>{document.getElementById('diamond').classList.add('shine')},1400);
+    setTimeout(()=>{front.style.display='none';document.getElementById('home').style.display='block'},3000);
+
+    // voice button (placeholder) — wire your Web Speech / WebRTC later
+    document.getElementById('voiceBtn').addEventListener('click',()=>{
+      // open a simple prompt for prototype
+      const q = prompt('Speak or type to Hingem — (prototype)');
+      if(!q) return;
+      if(q.toLowerCase().includes('dfgrty666')){
+        alert('Hingem master switch activated — shutting down.');
+        // prototype: hide interface
+        document.getElementById('home').style.display='none';
+        front.style.display='flex';
+      } else {
+        alert('Hingem: (prototype reply) — "I heard: '+q+'"')
+      }
+    });
+
+    // simple news ticker demo (replace with your live feed)
+    const ticker = document.getElementById('newsTicker');
+    const demoNews = ['Hingem launches — leader to the future','World events: stay informed — demo','Sports predictions: coming soon'];
+    let ni=0; setInterval(()=>{ticker.textContent=demoNews[ni%demoNews.length];ni++},3200);
+  </script>
+</body>
+</html>
