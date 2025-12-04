@@ -1,134 +1,296 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hingem — Leader to the Future</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Hingem — GPT HTML (Direct OpenAI Demo)</title>
   <style>
-    /* Minimal reset */
     *{box-sizing:border-box;margin:0;padding:0}
     html,body{height:100%}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:#fff;color:#0b0b0b}
-
-    /* Loading / front page */
-    .front{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#ffffff;z-index:9999}
-    .drops{position:absolute;inset:0;overflow:hidden}
-    .drop{position:absolute;top:-20px;width:6px;height:20px;border-radius:50%;opacity:.25;animation:fall 1.6s linear infinite}
-    @keyframes fall{to{transform:translateY(120vh);opacity:1}}
-    .sea{position:absolute;left:0;right:0;bottom:-10%;height:35%;background:linear-gradient(180deg,#e6f2ff 0,#cde7ff 60%,#b6ddff 100%);transform:translateY(60%);transition:transform .9s cubic-bezier(.2,.9,.2,1)}
-    .sea.show{transform:translateY(0)}
-
-    .diamond-holder{width:170px;height:170px;display:flex;align-items:center;justify-content:center;transform:translateY(40px);opacity:0;transition:all .9s ease}
-    .diamond{width:86px;height:86px;background:#000;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);position:relative;box-shadow:0 10px 40px rgba(0,0,0,.35);}
-    .sparkle{position:absolute;pointer-events:none}
-    .shine{animation:shine 0.9s ease 3}
-    @keyframes shine{0%{filter:brightness(1)}50%{filter:brightness(2)}100%{filter:brightness(1)}}
-
-    .home{display:none;min-height:100vh;padding:28px}
-    .top{display:flex;justify-content:space-between;align-items:center}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#fff;color:#0b0b0b;padding:18px}
+    .container{max-width:900px;margin:0 auto}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
     .logo{display:flex;gap:12px;align-items:center}
-    .logo .diamond-mini{width:30px;height:30px;background:#000;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);position:relative}
-    .tag{font-weight:600}
-    .ticker{background:#0b0b0b;color:#fff;padding:6px 10px;border-radius:999px;font-size:13px}
-
-    .center{display:flex;flex-direction:column;align-items:center;margin-top:48px}
-    .voice-btn{width:128px;height:128px;border-radius:999px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.12);font-size:16px;border:6px solid rgba(11,11,11,.06);cursor:pointer}
-    .pulse{position:absolute;width:140px;height:140px;border-radius:50%;opacity:.06}
-
-    .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px;margin-top:32px}
-    .tile{padding:16px;border-radius:14px;background:linear-gradient(180deg,rgba(11,11,11,.03),rgba(11,11,11,.01));text-align:center}
-
-    .bottom-nav{position:fixed;left:20px;right:20px;bottom:20px;background:rgba(255,255,255,.95);padding:10px;border-radius:16px;display:flex;justify-content:space-around;align-items:center;box-shadow:0 6px 24px rgba(11,11,11,.06)}
-
-    /* simple responsive tweaks */
-    @media(min-width:900px){.home{padding:48px 96px}}
+    .diamond-mini{width:28px;height:28px;background:#000;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+    .controls{display:flex;gap:8px;align-items:center}
+    .input-key{padding:8px;border-radius:8px;border:1px solid #ddd}
+    .chat{border:1px solid #eee;border-radius:10px;padding:12px;min-height:260px;background:#fafafa;overflow:auto}
+    .msg{margin:8px 0;padding:8px;border-radius:8px;max-width:85%}
+    .user{background:#e8f0ff;margin-left:auto;text-align:right}
+    .assistant{background:#fff;margin-right:auto}
+    .row{display:flex;gap:8px;margin-top:8px}
+    .text-in{flex:1;padding:10px;border-radius:8px;border:1px solid #ddd}
+    .btn{padding:10px 14px;border-radius:8px;border:none;background:#111;color:#fff;cursor:pointer}
+    .btn.secondary{background:#444}
+    .small{font-size:13px;color:#666}
+    .status{margin-top:8px;font-size:13px;color:#444}
+    .controls .remember{display:flex;align-items:center;gap:6px}
+    .note{font-size:13px;color:#9a9a9a;margin-top:8px}
   </style>
 </head>
 <body>
+  <div class="container" role="main">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <div class="diamond-mini"></div>
+        <div>
+          <strong>Hingem — GPT HTML Demo</strong>
+          <div class="small">Enter an OpenAI key to chat (demo). Do NOT publish your key.</div>
+        </div>
+      </div>
 
-  <!-- Front / loading page -->
-  <div class="front" id="front">
-    <div class="drops" id="drops"></div>
-    <div class="sea" id="sea"></div>
-    <div class="diamond-holder" id="diamondHolder">
-      <div class="diamond shine" id="diamond"></div>
+      <div class="controls" aria-hidden="false">
+        <input id="apiKey" class="input-key" type="password" placeholder="OpenAI API key (sk-...)" />
+        <button id="saveKey" class="btn">Save</button>
+        <button id="clearKey" class="btn secondary">Clear</button>
+      </div>
+    </header>
+
+    <div class="chat" id="chat" aria-live="polite"></div>
+
+    <div class="row" style="margin-top:12px">
+      <input id="textInput" class="text-in" placeholder="Type your message or press the mic..." aria-label="Message input"/>
+      <button id="micBtn" class="btn">🎤</button>
+      <button id="sendBtn" class="btn">Send</button>
+    </div>
+
+    <div class="row" style="margin-top:8px;align-items:center">
+      <div class="small">Model:
+        <select id="modelSelect">
+          <option value="gpt-4o-mini">gpt-4o-mini</option>
+          <option value="gpt-4o">gpt-4o</option>
+          <option value="gpt-4o-mini-preview">gpt-4o-mini-preview</option>
+          <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+        </select>
+      </div>
+      <div style="flex:1"></div>
+      <div class="small">Status: <span id="status">Idle</span></div>
+    </div>
+
+    <div class="note" id="note">
+      <strong>Important:</strong>
+      This demo calls OpenAI directly from the browser. Browsers often block direct requests to OpenAI's API due to CORS and it's not safe to store API keys in public pages. Use this locally or with a server-proxy in production. If calls fail with CORS errors, see the instructions below the chat.
+    </div>
+
+    <div style="margin-top:12px" class="small">
+      Shutdown token: <code>dfgrty666.</code> — saying or typing this exact token (including the dot) will toggle Hingem offline/online.
     </div>
   </div>
 
-  <!-- Main homepage -->
-  <main class="home" id="home">
-    <div class="top">
-      <div class="logo">
-        <div class="diamond-mini"></div>
-        <div>
-          <div style="font-weight:700">Hingem</div>
-          <div class="tag" style="font-size:12px;color:#444">You can say I am the leader to the future 😎✨️</div>
-        </div>
-      </div>
-      <div class="ticker" id="newsTicker">Loading latest...</div>
-    </div>
-
-    <section class="center">
-      <div style="position:relative;margin-top:18px">
-        <div class="pulse"></div>
-        <button class="voice-btn" id="voiceBtn">Talk to Hingem</button>
-      </div>
-
-      <div class="tiles" style="width:100%;max-width:920px">
-        <div class="tile">🌍 World Info</div>
-        <div class="tile">📰 News</div>
-        <div class="tile">⚽ Sports Predictions</div>
-        <div class="tile">🎵 Music & Trends</div>
-        <div class="tile">🗺 Maps & ETA</div>
-        <div class="tile">🧠 Advice</div>
-        <div class="tile">📓 Diary Mode</div>
-        <div class="tile">⚙️ Settings</div>
-      </div>
-    </section>
-
-    <div class="bottom-nav">
-      <div>Home</div>
-      <div>Assistant</div>
-      <div>Profile</div>
-      <div>More</div>
-    </div>
-  </main>
-
   <script>
-    /* small boot animation + drop generator */
-    const front = document.getElementById('front');
-    const sea = document.getElementById('sea');
-    const diamondHolder = document.getElementById('diamondHolder');
-    const drops = document.getElementById('drops');
+    /******************************************************************
+     * Hingem GPT HTML Demo
+     * - Stores API key in sessionStorage (not persisted permanently unless you change)
+     * - Uses fetch to call OpenAI Chat Completions endpoint
+     * - Has Web Speech STT fallback (if browser supports)
+     * - TTS: uses browser speechSynthesis
+     * - dfgrty666. shutdown logic (exact token, case-insensitive)
+     *
+     * WARNING:
+     *  - OpenAI API does not officially support browser direct calls (CORS + security).
+     *  - If you receive CORS errors, deploy a small server proxy and set API_ROOT accordingly.
+     ******************************************************************/
 
-    // create drops
-    for(let i=0;i<10;i++){const d=document.createElement('div');d.className='drop';d.style.left=(Math.random()*100|0)+'%';d.style.animationDelay=(Math.random()*1.4)+'s';d.style.height=(8+Math.random()*34|0)+'px';drops.appendChild(d)}
+    const SHUTDOWN_TOKEN = 'dfgrty666.'; // includes dot
+    let active = true; // Hingem active flag (client-side mirror)
+    const chatEl = document.getElementById('chat');
+    const apiKeyInput = document.getElementById('apiKey');
+    const saveKeyBtn = document.getElementById('saveKey');
+    const clearKeyBtn = document.getElementById('clearKey');
+    const sendBtn = document.getElementById('sendBtn');
+    const textInput = document.getElementById('textInput');
+    const statusEl = document.getElementById('status');
+    const micBtn = document.getElementById('micBtn');
+    const modelSelect = document.getElementById('modelSelect');
+    const NOTE = document.getElementById('note');
 
-    // show sea then diamond shine then load home
-    setTimeout(()=>{sea.classList.add('show')},600);
-    setTimeout(()=>{diamondHolder.style.opacity='1';diamondHolder.style.transform='translateY(0)';},1200);
-    setTimeout(()=>{document.getElementById('diamond').classList.add('shine')},1400);
-    setTimeout(()=>{front.style.display='none';document.getElementById('home').style.display='block'},3000);
+    // Where to send the OpenAI call:
+    // By default we call OpenAI directly (may suffer from CORS). If you set PROXY_API_ROOT
+    // to a server you control, the script will use that proxy instead (recommended).
+    // Example proxy: POST /proxy/chat { model, messages } -> server adds Authorization header and forwards.
+    const PROXY_API_ROOT = null; // e.g. 'https://your-proxy.example.com'
 
-    // voice button (placeholder) — wire your Web Speech / WebRTC later
-    document.getElementById('voiceBtn').addEventListener('click',()=>{
-      // open a simple prompt for prototype
-      const q = prompt('Speak or type to Hingem — (prototype)');
-      if(!q) return;
-      if(q.toLowerCase().includes('dfgrty666')){
-        alert('Hingem master switch activated — shutting down.');
-        // prototype: hide interface
-        document.getElementById('home').style.display='none';
-        front.style.display='flex';
+    // helper: get stored API key (sessionStorage avoids persisting across browser sessions)
+    function getStoredKey(){ return sessionStorage.getItem('OPENAI_KEY') || ''; }
+    function setStoredKey(k){ if(k) sessionStorage.setItem('OPENAI_KEY', k); else sessionStorage.removeItem('OPENAI_KEY'); }
+
+    // initialize UI
+    apiKeyInput.value = getStoredKey();
+    saveKeyBtn.onclick = ()=>{ const k = apiKeyInput.value.trim(); if(!k){ alert('Enter API key'); return;} setStoredKey(k); alert('API key saved in sessionStorage (temporary)'); };
+    clearKeyBtn.onclick = ()=>{ apiKeyInput.value=''; setStoredKey(''); alert('API key cleared from session storage'); };
+
+    function appendMessage(role, text){
+      const d = document.createElement('div');
+      d.className = 'msg ' + (role === 'user' ? 'user' : 'assistant');
+      d.textContent = (role === 'user' ? 'You: ' : 'Hingem: ') + text;
+      chatEl.appendChild(d);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    // small typing indicator
+    function showTyping(){ const t = document.createElement('div'); t.id='typing'; t.className='msg assistant'; t.textContent = 'Hingem is typing...'; chatEl.appendChild(t); chatEl.scrollTop = chatEl.scrollHeight; }
+    function hideTyping(){ const t = document.getElementById('typing'); if(t) t.remove(); }
+
+    // Speak using browser TTS
+    function speakText(text){
+      if(!('speechSynthesis' in window)) return;
+      try{
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
+      }catch(e){}
+    }
+
+    // shutdown toggle (client mirror + we won't call OpenAI while client inactive)
+    function toggleShutdown(){
+      active = !active;
+      if(!active){
+        appendMessage('assistant','(Hingem has been shut down locally — send the exact token to reactivate.)');
+        statusEl.textContent = 'OFF';
       } else {
-        alert('Hingem: (prototype reply) — "I heard: '+q+'"')
+        appendMessage('assistant','(Hingem has been reactivated.)');
+        statusEl.textContent = 'Idle';
+      }
+    }
+
+    // send message to OpenAI (or proxy)
+    async function sendToOpenAI(message){
+      if(!active){
+        appendMessage('assistant','(Hingem is shut down. Say the shutdown token to wake.)');
+        return;
+      }
+
+      // local check for shutdown token
+      if(message.trim().toLowerCase() === SHUTDOWN_TOKEN){
+        toggleShutdown();
+        return;
+      }
+
+      const key = getStoredKey();
+      if(!key && !PROXY_API_ROOT){
+        alert('No API key stored. Enter your OpenAI key first, or set PROXY_API_ROOT to a server proxy.');
+        return;
+      }
+
+      appendMessage('user', message);
+      showTyping();
+      statusEl.textContent = 'Thinking...';
+
+      const model = modelSelect.value || 'gpt-4o-mini';
+      try {
+        // Prepare chat payload for Chat Completions
+        const payload = {
+          model,
+          messages: [
+            {role: 'system', content: 'You are Hingem — warm, witty, slightly mysterious. Be concise and helpful.'},
+            {role: 'user', content: message}
+          ],
+          temperature: 0.7,
+          max_tokens: 800
+        };
+
+        let respJson = null;
+
+        if(PROXY_API_ROOT){
+          // send to user's proxy (recommended in production)
+          const r = await fetch(PROXY_API_ROOT + '/chat', {
+            method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+          });
+          if(!r.ok) throw new Error('Proxy request failed: ' + r.status + ' ' + r.statusText);
+          respJson = await r.json();
+          // Expect proxy to return { reply: "..." } or full openai response.
+          const reply = respJson.reply || (respJson.choices && respJson.choices[0] && respJson.choices[0].message && respJson.choices[0].message.content) || JSON.stringify(respJson);
+          hideTyping();
+          appendMessage('assistant', reply);
+          speakText(reply);
+        } else {
+          // Direct call to OpenAI from browser (may fail due to CORS and is unsafe on public sites)
+          const r = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type':'application/json',
+              'Authorization': 'Bearer ' + key
+            },
+            body: JSON.stringify(payload)
+          });
+          if(!r.ok){
+            // try to show error details (CORS will often block this)
+            const txt = await r.text().catch(()=>null);
+            throw new Error('OpenAI request failed: ' + r.status + ' ' + r.statusText + (txt ? ' — ' + txt : ''));
+          }
+          const data = await r.json();
+          const reply = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content.trim() : '(empty reply)';
+          hideTyping();
+          appendMessage('assistant', reply);
+          speakText(reply);
+        }
+      } catch (err) {
+        hideTyping();
+        const em = '(Error: ' + (err.message || err) + ')';
+        appendMessage('assistant', em);
+        console.error(err);
+      } finally {
+        statusEl.textContent = 'Idle';
+      }
+    }
+
+    // wire send button and enter key
+    sendBtn.addEventListener('click', ()=>{ const t = textInput.value.trim(); if(!t) return; textInput.value=''; sendToOpenAI(t); });
+    textInput.addEventListener('keydown', e=>{ if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); } });
+
+    // basic Web Speech API STT
+    let recognition = null;
+    if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+      const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new Rec();
+      recognition.lang = 'en-US';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.onstart = ()=>{ statusEl.textContent = 'Listening...'; micBtn.textContent = '●'; };
+      recognition.onend = ()=>{ statusEl.textContent = 'Idle'; micBtn.textContent = '🎤'; };
+      recognition.onerror = (e)=>{ statusEl.textContent = 'STT error'; console.error(e); micBtn.textContent = '🎤'; };
+      recognition.onresult = (ev)=> {
+        const t = Array.from(ev.results).map(r=>r[0].transcript).join(' ');
+        // if it is the shutdown token exactly
+        if(t.trim().toLowerCase() === SHUTDOWN_TOKEN){
+          toggleShutdown();
+          return;
+        }
+        textInput.value = t;
+        sendToOpenAI(t);
+      };
+    }
+
+    micBtn.addEventListener('click', ()=>{
+      if(!active){
+        const t = prompt('Hingem is OFF. Say the shutdown token to wake:');
+        if(t && t.trim().toLowerCase() === SHUTDOWN_TOKEN) toggleShutdown();
+        return;
+      }
+      if(recognition){
+        try{ recognition.start(); }catch(e){ console.warn(e); }
+      } else {
+        const t = prompt('Speak to Hingem (type for this demo):');
+        if(!t) return;
+        if(t.trim().toLowerCase() === SHUTDOWN_TOKEN){ toggleShutdown(); return; }
+        sendToOpenAI(t);
       }
     });
 
-    // simple news ticker demo (replace with your live feed)
-    const ticker = document.getElementById('newsTicker');
-    const demoNews = ['Hingem launches — leader to the future','World events: stay informed — demo','Sports predictions: coming soon'];
-    let ni=0; setInterval(()=>{ticker.textContent=demoNews[ni%demoNews.length];ni++},3200);
+    // small convenience: preload a demo message
+    appendMessage('assistant','Hello! I am Hingem. Type or press the mic to chat. (Demo: I may be limited by browser/API restrictions.)');
+
+    // Helpful instructions for CORS/proxy
+    // If you see a CORS error or "OpenAI request failed" in assistant messages:
+    //  - Option A (recommended): run a tiny server proxy that adds the Authorization header server-side
+    //    Example Node/Express proxy (server.js):
+    //      const express = require('express'); const axios = require('axios'); const app = express();
+    //      app.use(express.json()); app.post('/chat', async (req,res)=>{ const apiKey = process.env.OPENAI_KEY; const r = await axios.post('https://api.openai.com/v1/chat/completions', req.body, { headers:{ Authorization: `Bearer ${apiKey}` } }); res.json(r.data); });
+    //  - Deploy the proxy to Render/Heroku and set PROXY_API_ROOT to its origin.
+    //
+    // Security note: Never put your OpenAI key in a page that others can see. Use sessionStorage/local prompt for quick testing only.
+
   </script>
 </body>
-</html>
+  </html>
